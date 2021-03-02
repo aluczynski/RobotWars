@@ -6,27 +6,30 @@ namespace RobotWars
     public class Robot : Square
     {
         private Direction _direction;
-        private char[] _commands = {};
-        
-        public Robot(int x, int y, Direction direction)
+        private char[] _commands;
+        private Grid grid;
+
+        public Robot(int x, int y, Direction direction,Grid grid)
         {
             this.x = x;
             this.y = y;
             _direction = direction;
+            this.grid = grid;
         }
 
-        public string ProcessCommands(char[] commands)
+        public string ProcessCommands()
         {
-            foreach (var command in commands)
+            foreach (var command in _commands)
             {
-                Move(command);
+                if (!IsNextMoveOutOfGrid(command))
+                    Move(command);
             }
 
             string finalMessage = $"{x} {y} {_direction.ToString()}";
             return finalMessage;
         }
-        
-        public void Move(char command)
+
+        private void Move(char command)
         {
             switch (command)
             {
@@ -97,6 +100,30 @@ namespace RobotWars
                     _direction = Direction.S;
                     break;
             }
+        }
+
+        private bool IsNextMoveOutOfGrid(char command)
+        {
+            if (command == 'M')
+            {
+                switch (_direction)
+                {
+                    case Direction.N:
+                        return y >= grid.UpperY();
+                    case Direction.E:
+                        return x >= grid.UpperX();
+                    case Direction.S:
+                        return y <= 0;
+                    case Direction.W:
+                        return x <= 0; 
+                }
+            }
+            return false;
+        }
+
+        public void ReadCommands(string inputCommands)
+        {
+            _commands = inputCommands.ToCharArray();
         }
     }
     public enum Direction
